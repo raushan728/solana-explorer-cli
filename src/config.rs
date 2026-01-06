@@ -3,6 +3,11 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
 
+/// Application configuration structure.
+///
+/// Stores:
+/// - `cluster`: The name of the active cluster (e.g., "devnet", "mainnet").
+/// - `rpc_url`: The full HTTP/HTTPS URL for the RPC endpoint.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Config {
     pub cluster: String,
@@ -10,7 +15,7 @@ pub struct Config {
 }
 
 impl Config {
-    // Default config: Devnet
+    /// Create a default configuration (connected to Devnet).
     pub fn default() -> Self {
         Self {
             cluster: "devnet".to_string(),
@@ -18,12 +23,16 @@ impl Config {
         }
     }
 
+    /// Determine the configuration file path.
+    /// Default: `~/.raushan_config.json`
     pub fn get_path() -> PathBuf {
         let mut path = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
         path.push(".raushan_config.json");
         path
     }
 
+    /// Load configuration from disk.
+    /// Returns default config configuration if file is missing or invalid.
     pub fn load() -> Self {
         let path = Self::get_path();
         if let Ok(data) = fs::read_to_string(path) {
@@ -34,6 +43,7 @@ impl Config {
         Self::default()
     }
 
+    /// Save current configuration to disk.
     pub fn save(&self) -> Result<()> {
         let path = Self::get_path();
         let data = serde_json::to_string_pretty(self)?;

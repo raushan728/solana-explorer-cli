@@ -2,44 +2,6 @@ use anyhow::Result;
 use colored::*;
 use solana_client::rpc_client::RpcClient;
 
-/// Fetch and display general network status.
-///
-/// Displays:
-/// - Cluster Version
-/// - Current Epoch and Progress percentage
-/// - Current Slot and Block Height
-pub fn get_status(client: &RpcClient) -> Result<()> {
-    let epoch_info = client.get_epoch_info()?;
-    let version = client.get_version()?;
-    let block_height = client.get_block_height()?;
-
-    println!("\n{}", "--- Solana Network Status ---".bold().cyan());
-    println!("{:<20} : {}", "Cluster Version", version.solana_core.cyan());
-    println!(
-        "{:<20} : {}",
-        "Current Epoch",
-        epoch_info.epoch.to_string().yellow()
-    );
-    println!(
-        "{:<20} : {:.2}%",
-        "Epoch Progress",
-        (epoch_info.slot_index as f64 / epoch_info.slots_in_epoch as f64 * 100.0)
-    );
-    println!(
-        "{:<20} : {}",
-        "Current Slot",
-        epoch_info.absolute_slot.to_string().green()
-    );
-    println!(
-        "{:<20} : {}",
-        "Block Height",
-        block_height.to_string().green()
-    );
-    println!("{}\n", "-----------------------------".bold().cyan());
-
-    Ok(())
-}
-
 pub fn get_supply(client: &RpcClient) -> Result<()> {
     let supply = client
         .supply_with_commitment(solana_sdk::commitment_config::CommitmentConfig::finalized())?
@@ -69,7 +31,9 @@ pub fn get_supply(client: &RpcClient) -> Result<()> {
 
 pub fn get_inflation(client: &RpcClient) -> Result<()> {
     let governor = client.get_inflation_governor()?;
+    // We can also get current rate
     let rate = client.get_inflation_rate()?;
+
     println!("\n{}", "--- Inflation Status ---".bold().cyan());
     println!("{:<25} : {:.2}%", "Total Rate", rate.total * 100.0);
     println!("{:<25} : {:.2}%", "Validator Rate", rate.validator * 100.0);
@@ -88,33 +52,33 @@ pub fn get_inflation(client: &RpcClient) -> Result<()> {
 
 pub fn get_tps(client: &RpcClient) -> Result<()> {
     let samples = client.get_recent_performance_samples(Some(5))?;
+
     println!(
         "\n{}",
         "--- Network Performance (Avg last 5 samples) ---"
             .bold()
             .cyan()
     );
+
     if let Some(sample) = samples.first() {
+        // num_transactions / sample_period_secs
         let tps = sample.num_transactions as f64 / sample.sample_period_secs as f64;
         println!(
             "{:<25} : {:.2} TPS",
             "Current TPS",
             tps.to_string().green().bold()
         );
+        println!(
+            "{:<25} : {} slots",
+            "Sample Period", sample.sample_period_secs
+        );
+        println!(
+            "{:<25} : {} txs",
+            "Transactions in Window", sample.num_transactions
+        );
     } else {
         println!("No performance samples available.");
     }
-    Ok(())
-}
 
-pub fn get_epoch_schedule(client: &RpcClient) -> Result<()> {
-    let schedule = client.get_epoch_schedule()?;
-    println!("\n{}", "--- Epoch Schedule ---".bold().cyan());
-    println!("{:<25} : {}", "Slots per Epoch", schedule.slots_per_epoch);
-    println!(
-        "{:<25} : {}",
-        "Leader Schedule Slot Offset", schedule.leader_schedule_slot_offset
-    );
-    println!("{:<25} : {}", "Warmup", schedule.warmup);
     Ok(())
 }
