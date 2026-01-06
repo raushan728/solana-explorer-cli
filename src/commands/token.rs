@@ -94,3 +94,31 @@ pub fn get_mint_info(client: &RpcClient, mint_str: &str) -> Result<()> {
 
     Ok(())
 }
+
+pub fn get_holders(client: &RpcClient, mint_address: &str) -> Result<()> {
+    let mint_pubkey =
+        Pubkey::from_str(mint_address).map_err(|_| anyhow::anyhow!("Invalid Mint Address"))?;
+
+    // Fetch largest accounts
+    let accounts = client.get_token_largest_accounts(&mint_pubkey)?;
+
+    println!(
+        "\n{}",
+        format!("--- Largest Token Holders ({}) ---", accounts.len())
+            .bold()
+            .cyan()
+    );
+    println!("{:<45} | {:<20} | {}", "Address", "Amount", "Decimals");
+    println!("{}", "-".repeat(80));
+
+    for (i, acc) in accounts.iter().enumerate() {
+        println!(
+            "[{:02}] {:<45} | {:<20} | {}",
+            i + 1,
+            acc.address.yellow(),
+            acc.amount.ui_amount_string,
+            acc.amount.decimals
+        );
+    }
+    Ok(())
+}

@@ -6,113 +6,144 @@ use clap::{Parser, Subcommand};
 use colored::*;
 use config::Config;
 
-/// Raushan Explorer - CLI for Solana
+/// Raushan Explorer - A production-grade Solana CLI Toolkit
 #[derive(Parser)]
 #[command(name = "raushan")]
 #[command(about = "Ultimate Solana Terminal Explorer", long_about = None)]
-#[command(version = env!("CARGO_PKG_VERSION"))]
-#[command(propagate_version = true)]
+#[command(version)]
 struct Cli {
+    #[arg(short = 'v', long = "version", action = clap::ArgAction::Version)]
+    version: Option<bool>,
+
     #[command(subcommand)]
-    command: Commands,
+    command: Option<Commands>,
 }
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Cluster Management: Set/Get active cluster, Genesis info, Health
-    Cluster {
-        #[command(subcommand)]
-        action: ClusterAction,
-    },
-    /// Network Stats: TPS, Supply, Inflation, Epoch
-    Network {
-        #[command(subcommand)]
-        action: NetworkAction,
-    },
-    /// Account Inspection: Info, Tokens, History, Stake
-    Account {
-        #[command(subcommand)]
-        action: AccountAction,
-    },
-    /// Transaction Inspection
-    Tx {
-        #[command(subcommand)]
-        action: TxAction,
-    },
-    /// Block Inspection
-    Block {
-        #[command(subcommand)]
-        action: BlockAction,
-    },
-    /// Validator Info
-    Validator {
-        #[command(subcommand)]
-        action: ValidatorAction,
-    },
-    /// Token Mint/Supply Info
-    Token {
-        #[command(subcommand)]
-        action: TokenAction,
-    },
-    /// Program Inspection
-    Program {
-        #[command(subcommand)]
-        action: ProgramAction,
-    },
-}
+    // --- CLUSTER ---
+    /// Set the active cluster (devnet, testnet, mainnet-beta).
+    #[command(name = "cluster-set")]
+    ClusterSet { name: String },
 
-#[derive(Subcommand)]
-enum ClusterAction {
-    Set { name: String },
-    Get,
-    Info,
-    Health,
-    Genesis,
-}
+    /// Get the currently active cluster configuration.
+    #[command(name = "cluster-get")]
+    ClusterGet,
 
-#[derive(Subcommand)]
-enum NetworkAction {
-    Status,
-    Supply,
-    Inflation,
-    Tps,
-    EpochSchedule,
-}
+    /// Show detailed information about the current cluster version and features.
+    #[command(name = "cluster-info")]
+    ClusterInfo,
 
-#[derive(Subcommand)]
-enum AccountAction {
-    Info { address: String },
-    History { address: String },
-    Tokens { address: String },
-    Stake { address: String },
-}
+    /// Check the health status of the current cluster.
+    #[command(name = "cluster-health")]
+    ClusterHealth,
 
-#[derive(Subcommand)]
-enum TxAction {
-    Info { sig: String },
-    Logs { sig: String },
-}
+    /// Display the Genesis Hash of the current cluster.
+    #[command(name = "cluster-genesis")]
+    ClusterGenesis,
 
-#[derive(Subcommand)]
-enum BlockAction {
-    Info { slot: u64 },
-}
+    /// List known nodes in the cluster (Gossip).
+    #[command(name = "cluster-nodes")]
+    ClusterNodes,
 
-#[derive(Subcommand)]
-enum ValidatorAction {
-    List,
-}
+    // --- NETWORK ---
+    /// Detailed dashboard of the current network status (Epoch, Slot, Height).
+    #[command(name = "network-status")]
+    NetworkStatus,
 
-#[derive(Subcommand)]
-enum TokenAction {
-    MintInfo { address: String },
-    List { owner: String }, // For convenience alias, though Account Tokens is preferred
-}
+    /// Real-time Transactions Per Second (TPS) tracker with performance overview.
+    #[command(name = "network-tps")]
+    NetworkTps,
 
-#[derive(Subcommand)]
-enum ProgramAction {
-    Info { address: String },
-    AccountsOwned { address: String },
+    /// Show total, circulating, and non-circulating SOL supply.
+    #[command(name = "network-supply")]
+    NetworkSupply,
+
+    /// Display current inflation rates (Total, Validator, Foundation).
+    #[command(name = "network-inflation")]
+    NetworkInflation,
+
+    /// Show Epoch schedule and leader schedule offsets.
+    #[command(name = "network-epoch-info")]
+    NetworkEpochInfo,
+
+    // --- ACCOUNT ---
+    /// Fetch and display detailed account information and balance.
+    #[command(name = "account-info")]
+    AccountInfo { address: String },
+
+    /// Show SPL Token accounts owned by this address.
+    #[command(name = "account-tokens")]
+    AccountTokens { address: String },
+
+    /// Analyze stake accounts owned/managed by this address.
+    #[command(name = "account-stake")]
+    AccountStake { address: String },
+
+    /// List recent transaction history for the account.
+    #[command(name = "account-history")]
+    AccountHistory { address: String },
+
+    // --- TRANSACTION ---
+    /// Breakdown of a transaction (Status, Fee, Logs, Instructions).
+    #[command(name = "tx-info")]
+    TxInfo { sig: String },
+
+    /// Extract and display only the logs of a transaction.
+    #[command(name = "tx-logs")]
+    TxLogs { sig: String },
+
+    /// Simulate a transaction (Dry run) - *Not fully implemented yet*.
+    #[command(name = "tx-simulate")]
+    TxSimulate { sig: String },
+
+    /// Check prioritization fees for a transaction or block.
+    #[command(name = "tx-priority")]
+    TxPriority,
+
+    // --- BLOCK ---
+    /// Deep dive into a specific block by slot number.
+    #[command(name = "block-info")]
+    BlockInfo { slot: u64 },
+
+    /// List transactions within a specific block.
+    #[command(name = "block-transactions")]
+    BlockTransactions { slot: u64 },
+
+    /// Show rewards distribution for a block.
+    #[command(name = "block-rewards")]
+    BlockRewards { slot: u64 },
+
+    // --- VALIDATOR ---
+    /// List top active validators by stake.
+    #[command(name = "validator-list")]
+    ValidatorList,
+
+    /// Get detailed info about a specific validator identity.
+    #[command(name = "validator-info")]
+    ValidatorInfo { identity: String },
+
+    // --- TOKEN ---
+    /// Get details of a Token Mint (Supply, Decimals, Authorities).
+    #[command(name = "token-mint")]
+    TokenMint { address: String },
+
+    /// List largest holders of a specific Token Mint.
+    #[command(name = "token-holders")]
+    TokenHolders { address: String },
+
+    // --- STAKE ---
+    /// Inspect a specific stake account state and activation.
+    #[command(name = "stake-account-info")]
+    StakeAccountInfo { address: String },
+    // --- PROGRAM ---
+    /// details about a specific program (Owner, Data Size, Executable).
+    #[command(name = "program-info")]
+    ProgramInfo { address: String },
+
+    /// List accounts owned by a specific program.
+    #[command(name = "program-accounts")]
+    ProgramAccounts { address: String },
 }
 
 #[tokio::main]
@@ -127,87 +158,98 @@ async fn run() -> anyhow::Result<()> {
     let cli = Cli::parse();
     let mut cfg = Config::load();
 
-    match cli.command {
-        Commands::Cluster { action } => match action {
-            ClusterAction::Set { name } => commands::cluster::set(&mut cfg, name)?,
-            ClusterAction::Get => commands::cluster::get(&cfg)?,
-            ClusterAction::Info => {
-                let client = rpc::get_client(&cfg.rpc_url);
-                commands::cluster::info(&client)?;
+    if let Some(cmd) = cli.command {
+        match cmd {
+            // Cluster
+            Commands::ClusterSet { name } => commands::cluster::set(&mut cfg, name)?,
+            Commands::ClusterGet => commands::cluster::get(&cfg)?,
+            Commands::ClusterInfo => commands::cluster::info(&rpc::get_client(&cfg.rpc_url))?,
+            Commands::ClusterHealth => commands::cluster::health(&rpc::get_client(&cfg.rpc_url))?,
+            Commands::ClusterGenesis => commands::cluster::genesis(&rpc::get_client(&cfg.rpc_url))?,
+            Commands::ClusterNodes => commands::cluster::get_nodes(&rpc::get_client(&cfg.rpc_url))?,
+
+            // Network
+            Commands::NetworkStatus => {
+                commands::network::get_status(&rpc::get_client(&cfg.rpc_url))?
             }
-            ClusterAction::Health => {
-                let client = rpc::get_client(&cfg.rpc_url);
-                commands::cluster::health(&client)?;
+            Commands::NetworkTps => commands::network::get_tps(&rpc::get_client(&cfg.rpc_url))?,
+            Commands::NetworkSupply => {
+                commands::network::get_supply(&rpc::get_client(&cfg.rpc_url))?
             }
-            ClusterAction::Genesis => {
-                let client = rpc::get_client(&cfg.rpc_url);
-                commands::cluster::genesis(&client)?;
+            Commands::NetworkInflation => {
+                commands::network::get_inflation(&rpc::get_client(&cfg.rpc_url))?
             }
-        },
-        Commands::Network { action } => {
-            let client = rpc::get_client(&cfg.rpc_url);
-            match action {
-                NetworkAction::Status => commands::network::get_status(&client)?,
-                NetworkAction::Supply => commands::network::get_supply(&client)?,
-                NetworkAction::Inflation => commands::network::get_inflation(&client)?,
-                NetworkAction::Tps => commands::network::get_tps(&client)?,
-                NetworkAction::EpochSchedule => commands::network::get_epoch_schedule(&client)?,
+            Commands::NetworkEpochInfo => {
+                commands::network::get_epoch_schedule(&rpc::get_client(&cfg.rpc_url))?
+            }
+
+            // Account
+            Commands::AccountInfo { address } => {
+                commands::account::get_info(&rpc::get_client(&cfg.rpc_url), &address)?
+            }
+            Commands::AccountTokens { address } => {
+                commands::account::get_tokens(&rpc::get_client(&cfg.rpc_url), &address)?
+            }
+            Commands::AccountStake { address } => {
+                commands::account::get_stake(&rpc::get_client(&cfg.rpc_url), &address)?
+            }
+            Commands::AccountHistory { address } => {
+                commands::account::get_history(&rpc::get_client(&cfg.rpc_url), &address)?
+            }
+
+            // Transaction
+            Commands::TxInfo { sig } => {
+                commands::transaction::get_details(&rpc::get_client(&cfg.rpc_url), &sig)?
+            }
+            Commands::TxLogs { sig } => {
+                commands::transaction::get_logs(&rpc::get_client(&cfg.rpc_url), &sig)?
+            }
+            Commands::TxSimulate { sig: _ } => println!("Simulation feature coming soon."),
+            Commands::TxPriority => println!("Priority fees feature coming soon."),
+
+            // Block
+            Commands::BlockInfo { slot } => {
+                commands::block::get_block(&rpc::get_client(&cfg.rpc_url), slot)?
+            }
+            Commands::BlockTransactions { slot } => {
+                commands::block::get_block(&rpc::get_client(&cfg.rpc_url), slot)?
+            } // Currently returning everything, verify if specialized needed
+            Commands::BlockRewards { slot } => {
+                commands::block::get_block(&rpc::get_client(&cfg.rpc_url), slot)?
+            } // Currently returning everything
+
+            // Validator
+            Commands::ValidatorList => {
+                commands::validator::get_validators(&rpc::get_client(&cfg.rpc_url))?
+            }
+            Commands::ValidatorInfo { identity: _ } => {
+                println!("Validator detailed info coming soon.")
+            }
+
+            // Token
+            Commands::TokenMint { address } => {
+                commands::token::get_mint_info(&rpc::get_client(&cfg.rpc_url), &address)?
+            }
+            Commands::TokenHolders { address } => {
+                commands::token::get_holders(&rpc::get_client(&cfg.rpc_url), &address)?
+            }
+
+            // Stake
+            Commands::StakeAccountInfo { address } => {
+                commands::stake::get_stake_account(&rpc::get_client(&cfg.rpc_url), &address)?
+            }
+
+            // Program
+            Commands::ProgramInfo { address } => {
+                commands::program::get_info(&rpc::get_client(&cfg.rpc_url), &address)?
+            }
+            Commands::ProgramAccounts { address } => {
+                commands::program::get_accounts(&rpc::get_client(&cfg.rpc_url), &address)?
             }
         }
-        Commands::Account { action } => {
-            let client = rpc::get_client(&cfg.rpc_url);
-            match action {
-                AccountAction::Info { address } => commands::account::get_info(&client, &address)?,
-                AccountAction::History { address } => {
-                    commands::account::get_history(&client, &address)?
-                }
-                AccountAction::Tokens { address } => {
-                    commands::account::get_tokens(&client, &address)?
-                }
-                AccountAction::Stake { address } => {
-                    commands::account::get_stake(&client, &address)?
-                }
-            }
-        }
-        Commands::Tx { action } => {
-            let client = rpc::get_client(&cfg.rpc_url);
-            match action {
-                TxAction::Info { sig } => commands::transaction::get_details(&client, &sig)?,
-                TxAction::Logs { sig } => commands::transaction::get_logs(&client, &sig)?,
-            }
-        }
-        Commands::Block { action } => {
-            let client = rpc::get_client(&cfg.rpc_url);
-            match action {
-                BlockAction::Info { slot } => commands::block::get_block(&client, slot)?,
-            }
-        }
-        Commands::Validator { action } => {
-            let client = rpc::get_client(&cfg.rpc_url);
-            match action {
-                ValidatorAction::List => commands::validator::get_validators(&client)?,
-            }
-        }
-        Commands::Token { action } => {
-            let client = rpc::get_client(&cfg.rpc_url);
-            match action {
-                TokenAction::MintInfo { address } => {
-                    commands::token::get_mint_info(&client, &address)?
-                }
-                TokenAction::List { owner } => {
-                    commands::token::get_token_accounts(&client, &owner)?
-                }
-            }
-        }
-        Commands::Program { action } => {
-            let client = rpc::get_client(&cfg.rpc_url);
-            match action {
-                ProgramAction::Info { address } => commands::program::get_info(&client, &address)?,
-                ProgramAction::AccountsOwned { address } => {
-                    commands::program::get_accounts(&client, &address)?
-                }
-            }
-        }
+    } else {
+        // This path is hit if no subcommand is provided but no help/version flag triggered (e.g. empty execution)
+        // Clap arg_required_else_help usually handles this, but we cover it safely.
     }
     Ok(())
 }

@@ -39,13 +39,6 @@ pub fn info(client: &RpcClient) -> Result<()> {
 
 pub fn health(client: &RpcClient) -> Result<()> {
     match client.get_health() {
-        Ok(_) => println!("{}", "Cluster is unhealthy".red()), // get_health returns error if unhealthy? No, returns Ok(()) if healthy.
-        Err(_) => println!("{}", "Cluster is healthy".green()), // Wait, docs say: "Returns an error if the cluster is unhealthy". So Ok = Healthy.
-    }
-    // Correct check:
-    // client.get_health() returns Ok(()) if healthy.
-    // Let's re-verify. "Return an error if the node is unhealthy".
-    match client.get_health() {
         Ok(_) => println!("{}", "Cluster Status: HEALTHY".green().bold()),
         Err(e) => println!("{} ({})", "Cluster Status: UNHEALTHY".red().bold(), e),
     }
@@ -55,5 +48,32 @@ pub fn health(client: &RpcClient) -> Result<()> {
 pub fn genesis(client: &RpcClient) -> Result<()> {
     let hash = client.get_genesis_hash()?;
     println!("Genesis Hash: {}", hash.to_string().yellow());
+    Ok(())
+}
+
+pub fn get_nodes(client: &RpcClient) -> Result<()> {
+    let nodes = client.get_cluster_nodes()?;
+    println!(
+        "\n{}",
+        format!("--- Cluster Nodes ({}) ---", nodes.len())
+            .bold()
+            .cyan()
+    );
+    println!("{:<45} | {:<20} | {}", "Pubkey", "Version", "RPC");
+    println!("{}", "-".repeat(80));
+    for node in nodes.iter().take(20) {
+        let rpc = node
+            .rpc
+            .map(|s| s.to_string())
+            .unwrap_or_else(|| "-".to_string());
+        let ver = node
+            .version
+            .clone()
+            .unwrap_or_else(|| "Unknown".to_string());
+        println!("{:<45} | {:<20} | {}", node.pubkey, ver, rpc);
+    }
+    if nodes.len() > 20 {
+        println!("... and {} more.", nodes.len() - 20);
+    }
     Ok(())
 }
