@@ -22,7 +22,7 @@
 
 ## Introduction
 
-Raushan Explorer bridges the gap between complex blockchain data and developer efficiency. By replacing the need for slow, web-based block explorers, it offers developers, auditors, and node operators instant access to the Solana network's state. With over 30+ deep-inspection commands, users can query blocks, transactions, accounts, tokens, and validators with zero latency context switching.
+Raushan Explorer bridges the gap between complex blockchain data and developer efficiency. By replacing the need for slow, web-based block explorers, it offers developers, auditors, and node operators instant access to the Solana network's state. With over 25+ deep-inspection commands, users can query blocks, transactions, accounts, tokens, and validators with zero latency context switching.
 
 ## Key Features
 
