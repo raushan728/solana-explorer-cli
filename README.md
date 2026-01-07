@@ -38,40 +38,56 @@ Raushan Explorer bridges the gap between complex blockchain data and developer e
 
 Before installing, ensure your environment meets the following requirements:
 
-### For Method 1 (Shell Script)
+### For Method 1 (Shell Script - Linux/macOS)
 
 - **Operating System**: Linux or macOS.
-- **Dependencies**: `curl` and `sh` (Standard on most Unix systems).
-- **Network**: Active internet connection to reach GitHub and Solana RPC endpoints.
+- **Dependencies**: `curl`, `sh`, and `git` (Standard on most Unix systems).
+- **Network**: Active internet connection.
 
-### For Method 2 (Build from Source)
+### For Method 2 (Build from Source - Windows/Linux/macOS)
 
-- **Rust Toolchain**: Rust 1.75 or newer is required.
+- **Rust Toolchain**: Rust 1.75 or newer.
 - **Cargo**: Standard package manager for Rust.
-- **Dependencies**: OpenSSL development headers (`libssl-dev` on Ubuntu/Debian).
 
 ---
 
 ## Installation
 
-### Method 1: Shell Script (Recommended)
+### Linux & macOS
 
-For a quick, pre-compiled installation:
+#### Method 1: Automatic Script (Recommended)
+
+Run the following command to install. If `cargo` is missing, the script will guide you.
 
 ```bash
 curl -sSfL https://raw.githubusercontent.com/raushan728/solana-explorer-cli/main/install.sh | sh
 ```
 
-### Method 2: Cargo / From Source
-
-To build the binary yourself for maximum optimization on your machine:
+#### Method 2: Manual Install
 
 ```bash
-# Clone the repository
 git clone https://github.com/raushan728/solana-explorer-cli.git
 cd solana-explorer-cli
+cargo install --path .
+```
 
-# Build and Install
+### Windows
+
+The shell script is not supported on Windows. Please use Cargo.
+
+#### Method 1: Cargo Install (Recommended)
+
+Open **PowerShell** or **Command Prompt** and run:
+
+```bash
+cargo install --git https://github.com/raushan728/solana-explorer-cli
+```
+
+#### Method 2: Build from Source
+
+```bash
+git clone https://github.com/raushan728/solana-explorer-cli.git
+cd solana-explorer-cli
 cargo install --path .
 ```
 
@@ -207,6 +223,11 @@ Inspect executable programs, their owner, and data size.
 ---
 
 ## Troubleshooting
+
+### "cargo: command not found" or "raushan: command not found"
+
+- **Linux/macOS**: Install Rust via `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`. Ensure `~/.cargo/bin` is in your PATH.
+- **Windows**: Install Rust from [rust-lang.org](https://www.rust-lang.org/tools/install). Restart your terminal.
 
 ### RPC Connection Refused
 
