@@ -36,38 +36,36 @@ Raushan Explorer bridges the gap between complex blockchain data and developer e
 
 ## Prerequisites
 
-Before installing, ensure your environment meets the following requirements. Since the installation builds the project from source, these are mandatory for all methods:
+**For Installation Method 1 (Direct Binary - Recommended):**
 
-- **Rust Toolchain**: Rust 1.75 or newer is required.
-- **Cargo**: The standard package manager for Rust (included with the Rust toolchain).
-- **Network**: Active internet connection to reach GitHub and Solana RPC endpoints.
-- **Dependencies**:
-  - **Linux/macOS**: `curl`, `git`, and `bash`.
-  - **Windows**: PowerShell or Command Prompt.
+- **Operating System**: Linux or macOS.
+- **Dependencies**: `curl` and `bash`.
+- **Note**: Rust/Cargo is **NOT** required for this method.
+
+**For Installation Method 2 (From Source):**
+
+- **Rust Toolchain**: Rust 1.75 or newer.
+- **Cargo**: Standard package manager for Rust.
 
 ---
 
 ## Installation
 
-### Method 1: Automated Script (Linux & macOS)
+### Method 1: Direct Binary Download (Fastest)
 
-This is the recommended method for Unix-based systems. It automatically clones, builds, and installs the binary.
-
-**Note**: We use `bash` to ensure that your local environment variables (such as the Cargo path) are correctly loaded during the installation process.
+This method downloads the pre-compiled binary directly from GitHub Releases. It is the fastest way to get started and does not require a Rust environment.
 
 ```bash
 curl -sSfL https://raw.githubusercontent.com/raushan728/solana-explorer-cli/main/install.sh | bash
 ```
 
-### Method 2: Cargo Install (Cross-Platform)
+### Method 2: Build from Source
 
-This is the standard installation method for Rust developers and supports Linux, macOS, and Windows. It installs the binary directly from the GitHub repository without requiring a manual clone.
+This method is intended for developers who wish to modify the source code or compile specifically for their architecture. It requires the Rust toolchain to be installed.
 
 ```bash
 cargo install --git https://github.com/raushan728/solana-explorer-cli
 ```
-
-### Method 3: Build from Source
 
 If you prefer to manually manage the source code:
 
