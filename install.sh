@@ -4,69 +4,32 @@ set -e
 # Colors for output
 GREEN='\033[0;32m'
 RED='\033[0;31m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-echo -e "${GREEN}Detected OS: $(uname -s)${NC}"
-echo -e "${GREEN}Installing Raushan Explorer...${NC}"
+echo "Installing Raushan Explorer v0.1.0..."
 
-# 1. Check for Cargo (Rust)
-if ! command -v cargo &> /dev/null; then
-    echo -e "${RED}Error: 'cargo' is not installed.${NC}"
-    echo -e "Please install Rust and Cargo first:"
-    echo -e "  ${GREEN}curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh${NC}"
-    echo -e "After installing, restart your terminal and try this command again."
-    exit 1
-fi
-
-# Variables
+# Configuration
+REPO="raushan728/solana-explorer-cli"
+BINARY_NAME="raushan"
+VERSION="v0.1.0"
 INSTALL_DIR="/usr/local/bin"
-REPO_URL="https://github.com/raushan728/solana-explorer-cli.git"
-TEMP_DIR=""
 
-# Cleanup function
-cleanup() {
-    if [ -n "$TEMP_DIR" ] && [ -d "$TEMP_DIR" ]; then
-        echo -e "Cleaning up temporary files..."
-        rm -rf "$TEMP_DIR"
-    fi
-}
-trap cleanup EXIT
+# 1. Download the pre-built binary from GitHub Release
+echo "Downloading binary from GitHub..."
+URL="https://github.com/$REPO/releases/download/$VERSION/$BINARY_NAME"
 
-# 2. Check if we are in the repo directory or need to clone
-if [ ! -f "Cargo.toml" ]; then
-    echo -e "Cargo.toml not found. Cloning repository to temporary directory..."
-    TEMP_DIR=$(mktemp -d)
-    git clone --depth 1 "$REPO_URL" "$TEMP_DIR"
-    cd "$TEMP_DIR"
-else
-    echo -e "Cargo.toml found. Building from current directory..."
-fi
+curl -L -o "$BINARY_NAME" "$URL"
 
-# 3. Build release binary
-echo -e "${GREEN}Building release binary...${NC}"
-cargo build --release
+# 2. Make it executable
+chmod +x "$BINARY_NAME"
 
-BIN_PATH="target/release/raushan"
-
-if [ ! -f "$BIN_PATH" ]; then
-    echo -e "${RED}Error: Build failed. Binary not found at $BIN_PATH${NC}"
-    exit 1
-fi
-
-# 4. Install binary
-echo -e "${GREEN}Installing binary to $INSTALL_DIR...${NC}"
-
-if [ ! -d "$INSTALL_DIR" ]; then
-    echo -e "Creating directory $INSTALL_DIR..."
-    sudo mkdir -p "$INSTALL_DIR"
-fi
-
+# 3. Move to system path
+echo "Moving binary to $INSTALL_DIR (may require sudo)..."
 if [ -w "$INSTALL_DIR" ]; then
-    cp "$BIN_PATH" "$INSTALL_DIR/raushan"
+    mv "$BINARY_NAME" "$INSTALL_DIR/$BINARY_NAME"
 else
-    echo "Sudo permissions required to install to $INSTALL_DIR"
-    sudo cp "$BIN_PATH" "$INSTALL_DIR/raushan"
+    sudo mv "$BINARY_NAME" "$INSTALL_DIR/$BINARY_NAME"
 fi
 
-echo -e "${GREEN}Success! Raushan Explorer is installed.${NC}"
-echo -e "Run ${GREEN}raushan --help${NC} to get started."
+echo -e "${GREEN}Success! Raushan Explorer is installed system-wide.${NC}"
+echo -e "Run ${GREEN}raushan --version${NC} to verify."
