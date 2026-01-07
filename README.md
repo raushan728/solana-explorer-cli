@@ -36,58 +36,47 @@ Raushan Explorer bridges the gap between complex blockchain data and developer e
 
 ## Prerequisites
 
-Before installing, ensure your environment meets the following requirements:
+Before installing, ensure your environment meets the following requirements. Since the installation builds the project from source, these are mandatory for all methods:
 
-### For Method 1 (Shell Script - Linux/macOS)
-
-- **Operating System**: Linux or macOS.
-- **Dependencies**: `curl`, `sh`, and `git` (Standard on most Unix systems).
-- **Network**: Active internet connection.
-
-### For Method 2 (Build from Source - Windows/Linux/macOS)
-
-- **Rust Toolchain**: Rust 1.75 or newer.
-- **Cargo**: Standard package manager for Rust.
+- **Rust Toolchain**: Rust 1.75 or newer is required.
+- **Cargo**: The standard package manager for Rust (included with the Rust toolchain).
+- **Network**: Active internet connection to reach GitHub and Solana RPC endpoints.
+- **Dependencies**:
+  - **Linux/macOS**: `curl`, `git`, and `bash`.
+  - **Windows**: PowerShell or Command Prompt.
 
 ---
 
 ## Installation
 
-### Linux & macOS
+### Method 1: Automated Script (Linux & macOS)
 
-#### Method 1: Automatic Script (Recommended)
+This is the recommended method for Unix-based systems. It automatically clones, builds, and installs the binary.
 
-Run the following command to install. If `cargo` is missing, the script will guide you.
-
-```bash
-curl -sSfL https://raw.githubusercontent.com/raushan728/solana-explorer-cli/main/install.sh | sh
-```
-
-#### Method 2: Manual Install
+**Note**: We use `bash` to ensure that your local environment variables (such as the Cargo path) are correctly loaded during the installation process.
 
 ```bash
-git clone https://github.com/raushan728/solana-explorer-cli.git
-cd solana-explorer-cli
-cargo install --path .
+curl -sSfL https://raw.githubusercontent.com/raushan728/solana-explorer-cli/main/install.sh | bash
 ```
 
-### Windows
+### Method 2: Cargo Install (Cross-Platform)
 
-The shell script is not supported on Windows. Please use Cargo.
-
-#### Method 1: Cargo Install (Recommended)
-
-Open **PowerShell** or **Command Prompt** and run:
+This is the standard installation method for Rust developers and supports Linux, macOS, and Windows. It installs the binary directly from the GitHub repository without requiring a manual clone.
 
 ```bash
 cargo install --git https://github.com/raushan728/solana-explorer-cli
 ```
 
-#### Method 2: Build from Source
+### Method 3: Build from Source
+
+If you prefer to manually manage the source code:
 
 ```bash
+# 1. Clone the repository
 git clone https://github.com/raushan728/solana-explorer-cli.git
 cd solana-explorer-cli
+
+# 2. Build and Install
 cargo install --path .
 ```
 
