@@ -1,4 +1,4 @@
-# Raushan Explorer CLI: The Ultimate Terminal-Based Solana Blockchain Explorer
+# Solana Explorer CLI: The Ultimate Terminal-Based Solana Blockchain Explorer
 
 **Raushan Explorer** is a production-grade, high-performance command-line interface (CLI) tool designed to provide deep introspection capabilities for the Solana blockchain directly from your terminal.
 
